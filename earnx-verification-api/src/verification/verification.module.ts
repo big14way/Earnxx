@@ -7,6 +7,7 @@ import { SanctionsService } from './services/sanctions.service';
 import { FraudService } from './services/fraud.service';
 import { RiskService } from './services/risk.service';
 import { DocumentService } from './services/document.service';
+import { ChainlinkFunctionsService } from './services/chainlink-functions.service';
 import { VerificationRecord, VerificationRecordSchema } from './schemas/verification-record.schema';
 import { InvoiceData, InvoiceDataSchema } from './schemas/invoice-data.schema';
 
@@ -28,6 +29,7 @@ import { InvoiceData, InvoiceDataSchema } from './schemas/invoice-data.schema';
     FraudService,
     RiskService,
     DocumentService,
+    ChainlinkFunctionsService,
   ],
   exports: [VerificationService],
 })
