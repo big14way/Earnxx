@@ -51,6 +51,10 @@ frontend/.env.production.local
 .cache/
 .parcel-cache/
 .env
+.env.docker
+.env.local
+.env.development
+.env.production
 .node_modules
 
 35127266008152230287761209727211507096682063164260802445112431263919177634415

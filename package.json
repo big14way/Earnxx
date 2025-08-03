@@ -15,7 +15,15 @@
     "frontend:dev": "cd frontend && npm run dev",
     "frontend:build": "cd frontend && npm run build",
     "lint": "solhint 'contracts/**/*.sol'",
-    "prettier": "prettier --write 'contracts/**/*.sol'"
+    "prettier": "prettier --write 'contracts/**/*.sol'",
+    "docker:start": "./docker-commands.sh start",
+    "docker:stop": "./docker-commands.sh stop",
+    "docker:restart": "./docker-commands.sh restart",
+    "docker:status": "./docker-commands.sh status",
+    "docker:logs": "./docker-commands.sh logs",
+    "docker:test": "./docker-commands.sh test",
+    "docker:shell": "./docker-commands.sh shell",
+    "docker:cleanup": "./docker-commands.sh cleanup"
   },
   "keywords": [
     "defi",

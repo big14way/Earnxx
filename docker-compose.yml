@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  # EarnX Verification API Backend
+  earnx-api:
+    build:
+      context: ./earnx-verification-api
+      dockerfile: Dockerfile.dev
+    container_name: earnx-verification-api
+    ports:
+      - "3001:3001"
+    environment:
+      # Server Configuration
+      - NODE_ENV=development
+      - PORT=3001
+      - API_BASE_URL=http://localhost:3001
+      
+      # Database
+      - MONGODB_URI=mongodb://mongodb:27017/earnx_verification
+      - DB_NAME=earnx_verification
+      
+      # Chainlink Configuration (from your .env)
+      - CHAINLINK_FUNCTIONS_SUBSCRIPTION_ID=15721
+      - CHAINLINK_VRF_SUBSCRIPTION_ID=70683346938964543134051941086398146463176953067130935661041094624628466133908
+      
+      # IPFS/Pinata
+      - PINATA_API_KEY=37972dc6f8ff883e77d8
+      - PINATA_SECRET_API_KEY=35b351d9184d2decee4d1e51046f4788eb3c2634ccc51fbfe61d47abb64e8eb5
+      
+      # Security
+      - API_KEY=dev-api-key-12345
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+      
+      # Rate Limiting (relaxed for development)
+      - RATE_LIMIT_WINDOW=900000
+      - RATE_LIMIT_MAX=1000
+      - THROTTLE_TTL=60000
+      - THROTTLE_LIMIT=100
+      
+      # Logging
+      - LOG_LEVEL=debug
+      - ENABLE_FILE_LOGGING=false
+      
+      # Monitoring
+      - ENABLE_METRICS=true
+      - METRICS_PORT=9090
+    
+    volumes:
+      # Mount source code for hot reload
+      - ./earnx-verification-api/src:/usr/src/app/src:ro
+      - ./earnx-verification-api/test:/usr/src/app/test:ro
+      # Exclude node_modules from mounting
+      - /usr/src/app/node_modules
+    
+    depends_on:
+      - mongodb
+    
+    networks:
+      - earnx-network
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0-jammy
+    container_name: earnx-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=earnx_admin
+      - MONGO_INITDB_ROOT_PASSWORD=earnx_dev_password_123
+      - MONGO_INITDB_DATABASE=earnx_verification
+    volumes:
+      # Persist data
+      - mongodb_data:/data/db
+      # Initialization scripts
+      - ./docker/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - earnx-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Health Monitor (Optional)
+  earnx-monitor:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.monitor
+    container_name: earnx-health-monitor
+    environment:
+      - API_URL=http://earnx-api:3001
+      - MONITOR_INTERVAL=300000  # 5 minutes
+    depends_on:
+      - earnx-api
+    networks:
+      - earnx-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  earnx-network:
+    driver: bridge
