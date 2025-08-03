@@ -1,0 +1,90 @@
+services:
+  - type: web
+    name: earnx-verification-api
+    runtime: docker
+    plan: starter # Free tier
+    region: oregon # or your preferred region
+    branch: main
+    rootDir: earnx-verification-api
+    dockerfilePath: ./Dockerfile
+    
+    # Environment variables
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: API_BASE_URL
+        fromService:
+          type: web
+          name: earnx-verification-api
+          property: host
+      
+      # Database
+      - key: MONGODB_URI
+        sync: false # Set this manually in Render dashboard
+      - key: DB_NAME
+        value: earnx_verification
+      
+      # Chainlink Configuration
+      - key: CHAINLINK_FUNCTIONS_SUBSCRIPTION_ID
+        value: 15721
+      - key: CHAINLINK_VRF_SUBSCRIPTION_ID
+        value: 70683346938964543134051941086398146463176953067130935661041094624628466133908
+      
+      # IPFS/Pinata
+      - key: PINATA_API_KEY
+        value: 37972dc6f8ff883e77d8
+      - key: PINATA_SECRET_API_KEY
+        sync: false # Set this manually for security
+      
+      # Security
+      - key: API_KEY
+        sync: false # Generate a secure API key
+      - key: CORS_ORIGINS
+        value: http://localhost:3000,https://earnx.vercel.app
+      
+      # Rate Limiting
+      - key: RATE_LIMIT_WINDOW
+        value: 900000
+      - key: RATE_LIMIT_MAX
+        value: 100
+      - key: THROTTLE_TTL
+        value: 60000
+      - key: THROTTLE_LIMIT
+        value: 10
+      
+      # Logging
+      - key: LOG_LEVEL
+        value: info
+      - key: ENABLE_FILE_LOGGING
+        value: false
+      
+      # Monitoring
+      - key: ENABLE_METRICS
+        value: true
+      - key: METRICS_PORT
+        value: 9090
+    
+    # Health check endpoint
+    healthCheckPath: /health
+    
+    # Auto-deploy settings
+    autoDeploy: true
+    
+    # Build command (if needed)
+    buildCommand: npm run build
+    
+    # Start command
+    startCommand: npm run start:prod
+
+# Optional: Add a cron job for the ping function
+  - type: cron
+    name: earnx-health-monitor
+    runtime: node
+    plan: starter
+    schedule: "*/5 * * * *" # Every 5 minutes
+    branch: main
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node pingEarnX.js
