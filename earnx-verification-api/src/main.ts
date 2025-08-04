@@ -5,6 +5,12 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import axios from 'axios';
+import { webcrypto } from 'node:crypto';
+
+// Polyfill for crypto in Node.js environment
+if (!globalThis.crypto) {
+  globalThis.crypto = webcrypto as any;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
