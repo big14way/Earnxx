@@ -4,7 +4,7 @@ class PingService {
   private intervalId: NodeJS.Timeout | null = null;
   private apiUrl: string;
 
-  constructor(apiUrl: string = 'https://earnx.onrender.com') {
+  constructor(apiUrl: string = process.env.REACT_APP_API_BASE_URL || 'https://earnx-verification-api.onrender.com') {
     this.apiUrl = apiUrl;
   }
 

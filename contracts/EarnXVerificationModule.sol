@@ -40,18 +40,24 @@ contract EarnXVerificationModule is FunctionsClient {
         _;
     }
     
-    // ============ SIMPLE VERIFICATION SOURCE ============
+    // ============ LIVE API VERIFICATION SOURCE ============
     string public constant VERIFICATION_SOURCE = 
         "const invoiceId = args[0];"
-        "console.log('EarnX verifying:', invoiceId);"
-        "const result = {"
-        "invoiceId: invoiceId,"
-        "isValid: true,"
-        "riskScore: 25,"
-        "creditRating: 'A',"
-        "details: 'EarnX verification passed'"
-        "};"
-        "return Functions.encodeString(JSON.stringify(result));";
+        "const documentHash = args[1];"
+        "const commodity = args[2];"
+        "const amount = args[3];"
+        "const supplierCountry = args[4];"
+        "const buyerCountry = args[5];"
+        "const request = Functions.makeHttpRequest({"
+        "url: 'https://earnx-verification-api.onrender.com/api/v1/verification/verify-minimal',"
+        "method: 'POST',"
+        "headers: {'Content-Type': 'application/json', 'X-API-Key': secrets.apiKey},"
+        "data: {invoiceId, documentHash, commodity, amount: parseInt(amount), supplierCountry, buyerCountry}"
+        "});"
+        "const response = await request;"
+        "if (response.error) throw Error('API Error');"
+        "const result = response.data;"
+        "return Functions.encodeString(`${result.isValid ? 1 : 0},${result.riskScore},${result.creditRating}`);";
     
     // ============ CONSTRUCTOR ============
     constructor(uint64 _functionsSubscriptionId) 
@@ -79,8 +85,13 @@ contract EarnXVerificationModule is FunctionsClient {
         FunctionsRequest.Request memory req;
         req.initializeRequestForInlineJavaScript(VERIFICATION_SOURCE);
         
-        string[] memory args = new string[](1);
+        string[] memory args = new string[](6);
         args[0] = _toString(invoiceId);
+        args[1] = documentHash;
+        args[2] = commodity;
+        args[3] = _toString(amount);
+        args[4] = supplierCountry;
+        args[5] = buyerCountry;
         req.setArgs(args);
         
         s_lastRequestId = _sendRequest(

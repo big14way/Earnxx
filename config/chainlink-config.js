@@ -8,7 +8,7 @@ module.exports = {
       router: "0xb83E47C2bC239B3bf370bc41e1459A34b41238D0",
       donId: "fun-ethereum-sepolia-1",
       gasLimit: 300000,
-      apiUrl: "https://earnx.onrender.com/api/verification/chainlink-verify"
+      apiUrl: "https://earnx-verification-api.onrender.com/api/v1/verification/verify-minimal"
     },
     
     // Chainlink VRF v2
@@ -35,7 +35,7 @@ module.exports = {
     functions: {
       subscriptionId: 15721, // Same subscription if cross-chain
       gasLimit: 300000,
-      apiUrl: "https://earnx.onrender.com/api/verification/chainlink-verify"
+      apiUrl: "https://earnx-verification-api.onrender.com/api/v1/verification/verify-minimal"
     },
     
     vrf: {

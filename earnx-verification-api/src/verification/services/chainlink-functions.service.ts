@@ -28,7 +28,7 @@ export class ChainlinkFunctionsService {
 
       // API request to EarnX verification service
       const earnxRequest = Functions.makeHttpRequest({
-        url: "https://earnx.onrender.com/api/verification/chainlink-verify",
+        url: "https://earnx-verification-api.onrender.com/api/v1/verification/verify-minimal",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
